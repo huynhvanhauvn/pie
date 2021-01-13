@@ -31,10 +31,7 @@ class FlashCardItemState extends State<FlashCardItem> {
       ),
       builder: (context) {
         return Container(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height * 0.4,
+          height: MediaQuery.of(context).size.height * 0.4,
           child: Stack(
             children: [
               Positioned(
@@ -56,11 +53,13 @@ class FlashCardItemState extends State<FlashCardItem> {
                     children: [
                       Text(
                         widget.word.word,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 32),
                       ),
                       Text(
                         '(${widget.word.type})',
-                        style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic, fontSize: 18),
                       ),
                       Text(
                         widget.word.meaning,

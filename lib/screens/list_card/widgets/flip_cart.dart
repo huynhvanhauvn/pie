@@ -47,6 +47,7 @@ class FlipCard extends StatefulWidget {
   final VoidCallback onFlip;
   final BoolCallback onFlipDone;
   final bool flipOnTouch;
+  final VoidCallback onLongPress;
 
   const FlipCard(
       {Key key,
@@ -56,7 +57,9 @@ class FlipCard extends StatefulWidget {
         this.onFlip,
         this.onFlipDone,
         this.direction = FlipDirection.HORIZONTAL,
-        this.flipOnTouch = true})
+        this.flipOnTouch = true,
+        this.onLongPress,
+      })
       : super(key: key);
 
   @override
@@ -142,6 +145,7 @@ class FlipCardState extends State<FlipCard>
       return GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: toggleCard,
+        onLongPress: () => widget.onLongPress(),
         child: child,
       );
     }

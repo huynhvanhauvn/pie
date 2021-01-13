@@ -19,6 +19,7 @@ class MyState extends State<SearchWordScreen> {
   final _scrollThreshold = 200.0;
   ListBloc _listBloc;
   String _keyword;
+
   @override
   void initState() {
     _keyword = '';
@@ -33,8 +34,13 @@ class MyState extends State<SearchWordScreen> {
     return Scaffold(
       body: BlocBuilder<ListBloc, ListState>(
         builder: (context, state) {
+          print(state);
           if (state is ListSuccess) {
+            print(state.words);
             final words = state.words;
+            print(words.length);
+            print(words[0].toString());
+            print(words[1].toString());
             return ListView.builder(
               itemCount: state.words.length,
               controller: _scrollController,
@@ -42,8 +48,14 @@ class MyState extends State<SearchWordScreen> {
                 return i >= state.words.length
                     ? BottomLoader()
                     : ListTile(
-                        onTap: () => viewWordDetail(words[i], context),
+                        // onTap: () => viewWordDetail(words[i], context),
                         title: Text(words[i].word),
+                        trailing: Checkbox(
+                          value: words[i].selected,
+                          onChanged: (value) =>
+                              BlocProvider.of<ListBloc>(context)
+                                  .add(SelectWord(word: words[i], value: value),),
+                        ),
                       );
               },
             );
@@ -84,6 +96,16 @@ class MyState extends State<SearchWordScreen> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.check,
+              color: AppColor.primary,
+              size: 32,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
@@ -92,7 +114,7 @@ class MyState extends State<SearchWordScreen> {
 
   void _onScroll() {
     if (isEndList()) {
-      _listBloc.add(SearchWord(keyword: _keyword));
+      _listBloc.add(SearchWord(keyword: _keyword, isRefresh: false,));
     }
   }
 

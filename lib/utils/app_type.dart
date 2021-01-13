@@ -1,1 +1,1 @@
-typedef IntCallBack = void Function(int);
+typedef CallBack = void Function(dynamic);

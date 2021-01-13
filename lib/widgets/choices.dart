@@ -7,7 +7,7 @@ enum Direction { horizontal, vertical }
 class Choices extends StatefulWidget {
   final List<Choice> choices;
   final Direction direction;
-  final IntCallBack onPress;
+  final CallBack onPress;
 
   Choices({this.choices, this.direction, this.onPress})
       : assert(choices != null, direction != null);
