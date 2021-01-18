@@ -15,6 +15,8 @@ class ListGroupBloc extends Bloc<FlashCardEvent, ListGroupState> {
       yield ListGroupLoading();
       try {
         final List<FlashCardSeries> list = await repository.getListGroup();
+        print('aka');
+        print(list);
         yield ListGroupSuccess(series: list);
       } catch (e) {
         yield ListGroupFailure();

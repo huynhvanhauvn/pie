@@ -19,11 +19,6 @@ class FlashCardScreen extends StatefulWidget {
 }
 
 class FlashCardScreenState extends State<FlashCardScreen> {
-  final List<Word> words = [
-    Word(id: 0, word: 'run', type: 'v', meaning: 'Chạy', picture: ''),
-    Word(id: 1, word: 'learn', type: 'v', meaning: 'Học tập', picture: ''),
-    Word(id: 2, word: 'house', type: 'n', meaning: 'Nhà', picture: ''),
-  ];
 
   @override
   void initState() {
@@ -39,20 +34,22 @@ class FlashCardScreenState extends State<FlashCardScreen> {
         child: SingleChildScrollView(
           child: BlocBuilder<ListGroupBloc, ListGroupState>(
             builder: (context, state) {
+              print(state);
               if(state is ListGroupSuccess) {
+                print(state.series);
                 final List<FlashCardSeries> series = state.series;
                 return Column(
-                  children: series
+                  children: series != null && series.length > 0 ? series
                        .map(
-                        (e) => FlashCardFolder(
+                        (e) => e.words != null && e.words.length > 0 ? FlashCardFolder(
                       data: e,
                       onViewMore: (id) => viewCardFolder(
                         context: context,
                         idFolder: id,
                       ),
-                    ),
+                    ) : Container(),
                   )
-                      .toList(),
+                      .toList() : [],
                 );
               }
               return Container();
@@ -101,6 +98,10 @@ class FlashCardScreenState extends State<FlashCardScreen> {
         ],
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.qr_code),
       ),
     );
   }

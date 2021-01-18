@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/flashcard_series.dart';
 import 'package:pie/models/word.dart';
+import 'package:pie/screens/list_card/blocs/list_bloc/bloc.dart';
+import 'package:pie/screens/list_card/blocs/repository.dart';
 import 'package:pie/screens/list_card/screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:pie/screens/search_word/blocs/add_word_bloc/bloc.dart';
+import 'package:pie/screens/search_word/blocs/list_bloc/bloc.dart';
+import 'package:pie/screens/search_word/blocs/repository.dart';
+import 'package:pie/screens/search_word/screen.dart';
 
 bool isTabletLandscape({@required BuildContext context}) {
   var shortestSide = MediaQuery.of(context).size.shortestSide;
@@ -56,12 +64,24 @@ void viewWordDetail(Word word, BuildContext context) {
   );
 }
 
-void viewCardFolder({int idFolder, BuildContext context}) {
+void viewCardFolder({String idFolder, BuildContext context}) {
+  print(idFolder);
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => ListCardScreen(
-        idFolder: idFolder,
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => ListCardBloc(
+              repository: ListCardRepository(
+                httpClient: http.Client(),
+              ),
+            ),
+          ),
+        ],
+        child: ListCardScreen(
+          idFolder: idFolder,
+        ),
       ),
     ),
   );
@@ -82,14 +102,32 @@ List<Word> fromJsonToListWord(List<dynamic> listObject) {
       type: element['type'] as String ?? '',
       meaning: element['meaning'] as String ?? '',
       picture: element['picture'] as String ?? '',
+      selected: false,
     );
     words.add(word);
   });
   return words;
 }
 
+FlashCardSeries fromJsonToListCard(dynamic object) {
+  print('convert');
+  print(object);
+  final List<dynamic> listWord = object['vocab_list'];
+  print(listWord);
+  final FlashCardSeries series = FlashCardSeries(
+    id: object['id'] as String,
+    title: object['group_name'] as String ?? '',
+    words: fromJsonToListWord(listWord) ?? List(),
+    idUser: object['id_user'] as String ?? '',
+    createDate: object['created_day'] as String ?? '',
+    length: object['num_word'] as String ?? '',
+  );
+  print(series);
+  return series;
+}
+
 List<FlashCardSeries> fromJsonToListSeries(List<dynamic> listObject) {
-  final List<FlashCardSeries> listAward = List();
+  final List<FlashCardSeries> listSeries = List();
   listObject.forEach((element) {
     final List<dynamic> listWord = element['vocab_list'];
     final FlashCardSeries series = FlashCardSeries(
@@ -100,9 +138,9 @@ List<FlashCardSeries> fromJsonToListSeries(List<dynamic> listObject) {
       createDate: element['created_day'] as String ?? '',
       length: element['num_word'] as String ?? '',
     );
-    listAward.add(series);
+    listSeries.add(series);
   });
-  return listAward;
+  return listSeries;
 }
 
 Size screenSize({BuildContext context}) {
@@ -145,5 +183,32 @@ showAlertDialog(
     builder: (BuildContext context) {
       return alert;
     },
+  );
+}
+
+void goToAdd(BuildContext context, idSeries) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => ListBloc(
+              repository: ListRepository(
+                httpClient: http.Client(),
+              ),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => AddWordBloc(
+              repository: ListRepository(
+                httpClient: http.Client(),
+              ),
+            ),
+          ),
+        ],
+        child: SearchWordScreen(idSeries: idSeries,),
+      ),
+    ),
   );
 }
