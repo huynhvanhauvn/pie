@@ -11,46 +11,94 @@ class FlashCardRepository {
   final http.Client httpClient;
 
   FlashCardRepository({this.httpClient}) : assert(httpClient != null);
-  bool a = true;
+
   Future<List<FlashCardSeries>> getListGroup() async {
     final SharedPreferences sharedPreferences =
     await SharedPreferences.getInstance();
     final String token = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
-    print('Token: ${token}');
     final response = await httpClient.get('${AppString.baseUrl}Group/list',
-        headers: {HttpHeaders.authorizationHeader: a ? 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTA0NTk5NDUsIm5iZiI6MTYxMDQ1OTk0NSwiZXhwIjoxNjEwNDYzNTQ1LCJkYXRhIjp7ImlkIjoiMzQiLCJ1c2VybmFtZSI6InRpZW4ifX0.t5n_Q0lHJ-_8v5Bg6EQR151qHzZBrlKgDrzvWhBxke4' : token});
-    print('go');
-    a = false;
+        headers: {HttpHeaders.authorizationHeader: token});
     if (response.statusCode == 200) {
-      print('re suc');
-      print(response.body);
       final series = jsonDecode(response.body);
-      print(fromJsonToListSeries(series));
       return fromJsonToListSeries(series);
     } else if (response.statusCode == 401) {
-      print(response.statusCode);
-      refreshToken();
-      throw Exception('Get List Group: ${response.statusCode}');
+
+      final String refreshToken = sharedPreferences.getString(
+          LoginScreen.REFRESH_TOKEN) ?? '';
+      final tokenResponse = await httpClient.get('${AppString.baseUrl}User/reset',
+          headers: {HttpHeaders.authorizationHeader: refreshToken});
+      print(tokenResponse.statusCode);
+      if (tokenResponse.statusCode == 200) {
+        final user = jsonDecode(tokenResponse.body);
+        await sharedPreferences.setString(LoginScreen.TOKEN, user['new_token']);
+
+        final String newToken = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+        final response = await httpClient.get('${AppString.baseUrl}Group/list',
+            headers: {HttpHeaders.authorizationHeader: newToken});
+        if (response.statusCode == 200) {
+          final series = jsonDecode(response.body);
+          print(fromJsonToListSeries(series));
+          return fromJsonToListSeries(series);
+        } else if (response.statusCode == 401) {
+          // logout
+          throw Exception('Get List Group: ${response.statusCode}');
+        } else {
+          throw Exception('Get List Group: ${response.statusCode}');
+        }
+      } else {
+        throw Exception('Error reset token');
+      }
     } else {
       throw Exception('Get List Group: ${response.statusCode}');
     }
   }
 
-  Future<void> refreshToken() async {
+  Future<bool> renameSeries({String id, String name}) async {
     final SharedPreferences sharedPreferences =
     await SharedPreferences.getInstance();
-    final String refreshToken = sharedPreferences.getString(
-        LoginScreen.REFRESH_TOKEN) ?? '';
-    final tokenResponse = await httpClient.get('${AppString.baseUrl}User/reset',
-        headers: {HttpHeaders.authorizationHeader: refreshToken});
-    print(tokenResponse.statusCode);
-    if (tokenResponse.statusCode == 200) {
-      final user = jsonDecode(tokenResponse.body);
-      await sharedPreferences.setString(LoginScreen.TOKEN, user['new_token']);
-      print(sharedPreferences.getString(LoginScreen.TOKEN) ?? '');
-      getListGroup();
+    final String token = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+    final response = await httpClient.post('${AppString.baseUrl}Group/update',
+        body: jsonEncode(<String, String>{
+          'id': id,
+          'group_name': name,
+        }),
+        headers: {HttpHeaders.authorizationHeader: token});
+    if (response.statusCode == 200) {
+      final series = jsonDecode(response.body);
+      return true;
+    } else if (response.statusCode == 401) {
+
+      final String refreshToken = sharedPreferences.getString(
+          LoginScreen.REFRESH_TOKEN) ?? '';
+      final tokenResponse = await httpClient.get('${AppString.baseUrl}User/reset',
+          headers: {HttpHeaders.authorizationHeader: refreshToken});
+      print(tokenResponse.statusCode);
+      if (tokenResponse.statusCode == 200) {
+        final user = jsonDecode(tokenResponse.body);
+        await sharedPreferences.setString(LoginScreen.TOKEN, user['new_token']);
+
+        final String newToken = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+        final response = await httpClient.post('${AppString.baseUrl}Group/update',
+            body: jsonEncode(<String, String>{
+              'id': id,
+              'group_name': name,
+            }),
+            headers: {HttpHeaders.authorizationHeader: newToken});
+        if (response.statusCode == 200) {
+          final series = jsonDecode(response.body);
+          print(fromJsonToListSeries(series));
+          return true;
+        } else if (response.statusCode == 401) {
+          // logout
+          throw Exception('Rename Group: ${response.statusCode}');
+        } else {
+          throw Exception('Rename Group: ${response.statusCode}');
+        }
+      } else {
+        throw Exception('Error reset token');
+      }
     } else {
-      throw Exception('Error reset token');
+      throw Exception('Rename Group: ${response.statusCode}');
     }
   }
 }

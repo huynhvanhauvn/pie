@@ -20,11 +20,9 @@ class Word extends Equatable {
   String toString() =>
       '{id: ${id}, word: ${word}, type: ${type}, meaning: ${meaning}, picture: ${picture}, selected: ${selected}}';
 
-  Map<String, dynamic> toJson() {
-    return {
+  Map<String, dynamic> toIdJson() => {
       "id": id
-    };
-  }
+  };
 
   @override
   // TODO: implement props

@@ -6,6 +6,7 @@ import 'package:pie/screens/list_card/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/list_card/blocs/repository.dart';
 import 'package:pie/screens/list_card/screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:pie/screens/search_word/blocs/add_word_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/repository.dart';
 import 'package:pie/screens/search_word/screen.dart';
@@ -198,8 +199,15 @@ void goToAdd(BuildContext context, idSeries) {
               ),
             ),
           ),
+          BlocProvider(
+            create: (context) => AddWordBloc(
+              repository: ListRepository(
+                httpClient: http.Client(),
+              ),
+            ),
+          ),
         ],
-        child: SearchWordScreen(),
+        child: SearchWordScreen(idSeries: idSeries,),
       ),
     ),
   );

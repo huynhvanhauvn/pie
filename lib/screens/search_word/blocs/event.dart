@@ -25,11 +25,11 @@ class SelectWord extends SearchEvent {
   List<Object> get props => [word, value];
 }
 
-class AddWordWord extends SearchEvent {
+class AddWord extends SearchEvent {
   final List<Word> words;
   final String idSeries;
 
-  AddWordWord(this.words, this.idSeries);
+  AddWord(this.words, this.idSeries);
 
   @override
   // TODO: implement props

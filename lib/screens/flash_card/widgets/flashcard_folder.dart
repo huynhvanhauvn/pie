@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/flashcard_series.dart';
 import 'package:pie/models/word.dart';
+import 'package:pie/screens/flash_card/blocs/event.dart';
+import 'package:pie/screens/flash_card/blocs/rename_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/widgets/flash_card.dart';
 import 'package:pie/utils/app_functions.dart';
 import 'package:pie/utils/app_type.dart';
@@ -9,8 +12,42 @@ import 'package:pie/utils/app_type.dart';
 class FlashCardFolder extends StatelessWidget {
   final FlashCardSeries data;
   final CallBack onViewMore;
+  final _controller = TextEditingController();
 
   FlashCardFolder({this.data, this.onViewMore});
+
+  void showRenameDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Container(
+            height: 200,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: TextField(
+                    controller: _controller,
+                  ),
+                ),
+                FlatButton(
+                  onPressed: () => {
+                    BlocProvider.of<RenameGroupBloc>(context).add(RenameSeries(id: data.id, name: _controller.text,))fr sr4;
+                  },
+                  child: Text('Change'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void showMenu(BuildContext context) {
     showDialog(
@@ -30,6 +67,10 @@ class FlashCardFolder extends StatelessWidget {
                     endIndent: 20,
                   ),
                   GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      showRenameDialog(context);
+                    },
                     child: Text('Rename'),
                   ),
                   Divider(

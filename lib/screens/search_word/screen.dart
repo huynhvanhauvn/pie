@@ -1,15 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/word.dart';
+import 'package:pie/screens/search_word/blocs/add_word_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/event.dart';
 import 'package:pie/screens/search_word/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/list_bloc/state.dart';
 import 'package:pie/screens/search_word/widgets/bottom_loader.dart';
 import 'package:pie/utils/app_color.dart';
 import 'package:pie/utils/app_string.dart';
-import 'package:pie/utils/app_functions.dart';
 
 class SearchWordScreen extends StatefulWidget {
+  final String idSeries;
+
+  const SearchWordScreen({Key key, this.idSeries}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => MyState();
 }
@@ -17,6 +23,7 @@ class SearchWordScreen extends StatefulWidget {
 class MyState extends State<SearchWordScreen> {
   final _scrollController = ScrollController();
   final _scrollThreshold = 200.0;
+  final StreamController<List<Word>> _wordsStream = StreamController();
   ListBloc _listBloc;
   String _keyword;
 
@@ -34,13 +41,9 @@ class MyState extends State<SearchWordScreen> {
     return Scaffold(
       body: BlocBuilder<ListBloc, ListState>(
         builder: (context, state) {
-          print(state);
           if (state is ListSuccess) {
-            print(state.words);
             final words = state.words;
-            print(words.length);
-            print(words[0].toString());
-            print(words[1].toString());
+            _wordsStream.add(words);
             return ListView.builder(
               itemCount: state.words.length,
               controller: _scrollController,
@@ -53,8 +56,9 @@ class MyState extends State<SearchWordScreen> {
                         trailing: Checkbox(
                           value: words[i].selected,
                           onChanged: (value) =>
-                              BlocProvider.of<ListBloc>(context)
-                                  .add(SelectWord(word: words[i], value: value),),
+                              BlocProvider.of<ListBloc>(context).add(
+                            SelectWord(word: words[i], value: value),
+                          ),
                         ),
                       );
               },
@@ -97,13 +101,28 @@ class MyState extends State<SearchWordScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.check,
-              color: AppColor.primary,
-              size: 32,
-            ),
-            onPressed: () => Navigator.of(context).pop(),
+          StreamBuilder<List<Word>>(
+            stream: _wordsStream.stream,
+            initialData: [],
+            builder: (context, snapshot) {
+              final List<Word> _words = snapshot.data.where((element) => element.selected).toList();
+              return IconButton(
+                enableFeedback: _words.length > 0,
+                disabledColor: Colors.grey,
+                icon: Icon(
+                  Icons.check,
+                  color: AppColor.primary,
+                  size: 32,
+                ),
+                onPressed: _words.length > 0 ? () {
+                  print(widget.idSeries);
+                  if (widget.idSeries != null) {
+                    BlocProvider.of<AddWordBloc>(context)
+                        .add(AddWord(_words, widget.idSeries));
+                  }
+                } : null,
+              );
+            },
           ),
         ],
         backgroundColor: Colors.transparent,
@@ -114,7 +133,10 @@ class MyState extends State<SearchWordScreen> {
 
   void _onScroll() {
     if (isEndList()) {
-      _listBloc.add(SearchWord(keyword: _keyword, isRefresh: false,));
+      _listBloc.add(SearchWord(
+        keyword: _keyword,
+        isRefresh: false,
+      ));
     }
   }
 
