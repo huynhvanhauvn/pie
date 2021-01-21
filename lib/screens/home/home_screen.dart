@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pie/screens/flash_card/blocs/copy_bloc/bloc.dart';
+import 'package:pie/screens/flash_card/blocs/delete_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/blocs/list_bloc/bloc.dart';
+import 'package:pie/screens/flash_card/blocs/rename_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/blocs/repository.dart';
 import 'package:pie/screens/flash_card/flashcard_screen.dart';
 import 'package:pie/screens/home/widgets/menu_item.dart';
@@ -42,6 +45,18 @@ class HomeScreenState extends State<HomeScreen> {
                                           create: (context) => ListGroupBloc(
                                               repository:
                                                   _flashCardRepository)),
+                                      BlocProvider(
+                                        create: (context) => RenameGroupBloc(
+                                            repository: _flashCardRepository),
+                                      ),
+                                      BlocProvider(
+                                        create: (context) => DeleteGroupBloc(
+                                            repository: _flashCardRepository),
+                                      ),
+                                      BlocProvider(
+                                        create: (context) => CopyGroupBloc(
+                                            repository: _flashCardRepository),
+                                      ),
                                     ],
                                     child: FlashCardScreen(),
                                   )));

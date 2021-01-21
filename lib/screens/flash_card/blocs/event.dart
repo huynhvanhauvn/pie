@@ -19,3 +19,25 @@ class RenameSeries extends FlashCardEvent {
   // TODO: implement props
   List<Object> get props => [id, name];
 }
+
+class DeleteSeries extends FlashCardEvent {
+  final String id;
+
+
+  DeleteSeries({this.id});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [id];
+}
+
+class CopySeries extends FlashCardEvent {
+  final String id;
+
+
+  CopySeries({this.id});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [id];
+}

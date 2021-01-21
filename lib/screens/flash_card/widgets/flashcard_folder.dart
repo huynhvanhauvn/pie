@@ -1,13 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/flashcard_series.dart';
-import 'package:pie/models/word.dart';
+import 'package:pie/screens/flash_card/blocs/delete_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/blocs/event.dart';
 import 'package:pie/screens/flash_card/blocs/rename_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/widgets/flash_card.dart';
 import 'package:pie/utils/app_functions.dart';
 import 'package:pie/utils/app_type.dart';
+import 'package:qrscans/qrscan.dart' as scanner;
 
 class FlashCardFolder extends StatelessWidget {
   final FlashCardSeries data;
@@ -19,7 +22,7 @@ class FlashCardFolder extends StatelessWidget {
   void showRenameDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (ctx) {
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
@@ -36,8 +39,12 @@ class FlashCardFolder extends StatelessWidget {
                   ),
                 ),
                 FlatButton(
-                  onPressed: () => {
-                    BlocProvider.of<RenameGroupBloc>(context).add(RenameSeries(id: data.id, name: _controller.text,))fr sr4;
+                  onPressed: () {
+                    BlocProvider.of<RenameGroupBloc>(context).add(RenameSeries(
+                      id: data.id,
+                      name: _controller.text,
+                    ));
+                    Navigator.pop(ctx);
                   },
                   child: Text('Change'),
                 ),
@@ -49,10 +56,36 @@ class FlashCardFolder extends StatelessWidget {
     );
   }
 
+  void showQRDialog(BuildContext context) async {
+    final screen = MediaQuery.of(context).size;
+    Uint8List _image = await scanner.generateBarCode(data.id);
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Container(
+            height: screen.width - 80,
+            padding: EdgeInsets.all(20),
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: MemoryImage(_image, scale: 1),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void showMenu(BuildContext context) {
     showDialog(
         context: context,
-        builder: (context) {
+        builder: (ctx) {
           return Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.0),
@@ -68,7 +101,7 @@ class FlashCardFolder extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(ctx);
                       showRenameDialog(context);
                     },
                     child: Text('Rename'),
@@ -86,6 +119,28 @@ class FlashCardFolder extends StatelessWidget {
                     endIndent: 20,
                   ),
                   GestureDetector(
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      showQRDialog(context);
+                    },
+                    child: Text('Share'),
+                  ),
+                  Divider(
+                    indent: 20,
+                    endIndent: 20,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      showAlertDialog(
+                          context: context,
+                          title: 'Confirm',
+                          content: 'Do you want to delete this group?',
+                          onContinue: () {
+                            BlocProvider.of<DeleteGroupBloc>(context)
+                                .add(DeleteSeries(id: data.id));
+                          });
+                    },
                     child: Text(
                       'Delete Group',
                       style: TextStyle(
