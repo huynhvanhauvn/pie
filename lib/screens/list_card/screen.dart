@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -5,18 +7,16 @@ import 'package:pie/models/word.dart';
 import 'package:pie/screens/list_card/blocs/event.dart';
 import 'package:pie/screens/list_card/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/list_card/blocs/list_bloc/state.dart';
+import 'package:pie/screens/list_card/blocs/remove_word_bloc/bloc.dart';
+import 'package:pie/screens/list_card/blocs/remove_word_bloc/state.dart';
 import 'package:pie/screens/list_card/widgets/flip_cart.dart';
 import 'package:pie/utils/app_functions.dart';
 
 class ListCardScreen extends StatefulWidget {
-  // List<Word> words = [
-  //   Word(id: '0', word: 'run', type: 'v', meaning: 'Chạy', picture: ''),
-  //   Word(id: '1', word: 'learn', type: 'v', meaning: 'Học tập', picture: ''),
-  //   Word(id: '2', word: 'house', type: 'n', meaning: 'Nhà', picture: ''),
-  // ];
   final String idFolder;
+  final VoidCallback onChangeData;
 
-  ListCardScreen({@required this.idFolder});
+  ListCardScreen({@required this.idFolder, this.onChangeData});
 
   @override
   State<StatefulWidget> createState() => ListCardScreenDetail();
@@ -26,6 +26,7 @@ class ListCardScreenDetail extends State<ListCardScreen> {
   PageController _pageController;
 
   FlutterTts tts = FlutterTts();
+  final StreamController lastIndexStream = StreamController<int>();
 
   Future _speak(Word word) async {
     await tts.setLanguage("en-US");
@@ -91,9 +92,20 @@ class ListCardScreenDetail extends State<ListCardScreen> {
   @override
   void initState() {
     _pageController = PageController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      lastIndexStream.stream.listen((event) {
+        jumpTopIndex(event);
+      });
+    });
     BlocProvider.of<ListCardBloc>(context)
         .add(GetListCard(id: widget.idFolder));
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -101,83 +113,108 @@ class ListCardScreenDetail extends State<ListCardScreen> {
     return Scaffold(
       body: BlocBuilder<ListCardBloc, ListCardState>(builder: (context, state) {
         if (state is ListCardSuccess) {
-          print(state.series);
           final List<Word> words = state.series.words;
+          lastIndexStream.add(state.position < words.length
+              ? state.position
+              : words.length - 1);
           return Stack(
             children: [
               PageView.builder(
                 controller: _pageController,
                 itemBuilder: (context, index) {
                   final Word word = words[index];
-                  return Dismissible(
-                    onDismissed: (direction) {
-                      if (direction == DismissDirection.up) {
-                        setState(() {
-                          words.removeAt(index);
-                        });
-                      }
-                      if (direction == DismissDirection.down) {
-                        showAlertDialog(
-                          context: context,
-                          title: 'Thông báo',
-                          content: 'Bạn có muốn xóa từ này khỏi danh sách?',
-                          onContinue: () => setState(() {
-                            words.removeAt(index);
-                          }),
-                        );
+                  return BlocListener<RemoveWordBloc, RemoveWordState>(
+                    listener: (context, state) {
+                      if (state is RemoveWordSuccess) {
+                        BlocProvider.of<ListCardBloc>(context).add(
+                            GetListCard(id: widget.idFolder, position: index));
+                        widget.onChangeData();
                       }
                     },
-                    direction: DismissDirection.vertical,
-                    key: UniqueKey(),
-                    child: Center(
-                      child: Container(
-                        height: 200,
-                        child: FlipCard(
-                          onLongPress: () => displayBottomSheet(context, word),
-                          direction: FlipDirection.VERTICAL, // default
-                          front: Container(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: 20,
-                            ),
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                    blurRadius: 10,
-                                    spreadRadius: 5,
-                                    color: Colors.grey.withOpacity(0.2)),
-                              ],
-                              borderRadius: BorderRadius.circular(32),
-                              color: Colors.white,
-                            ),
-                            child: Center(
-                              child: Text(
-                                word.word,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
+                    child: Dismissible(
+                      onDismissed: (direction) {
+                        if (direction == DismissDirection.up) {
+                          setState(() {
+                            words.removeAt(index);
+                          });
+                        }
+                        if (direction == DismissDirection.down) {
+                          showAlertDialog(
+                              context: context,
+                              title: 'Thông báo',
+                              content: 'Bạn có muốn xóa từ này khỏi danh sách?',
+                              onContinue: () {
+                                BlocProvider.of<RemoveWordBloc>(context)
+                                    .add(RemoveWord(
+                                  idGroup: widget.idFolder,
+                                  idWord: word.id,
+                                ));
+                                // BlocProvider.of<ListGroupBloc>(context).add(GetListGroup());
+                              },
+                              onCancel: () {
+                                BlocProvider.of<ListCardBloc>(context)
+                                    .add(GetListCard(
+                                  id: widget.idFolder,
+                                  position: index,
+                                ));
+                              });
+                        }
+                      },
+                      direction: DismissDirection.vertical,
+                      key: UniqueKey(),
+                      child: Center(
+                        child: Container(
+                          height: 200,
+                          child: FlipCard(
+                            onLongPress: () =>
+                                displayBottomSheet(context, word),
+                            direction: FlipDirection.VERTICAL, // default
+                            front: Container(
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      blurRadius: 10,
+                                      spreadRadius: 5,
+                                      color: Colors.grey.withOpacity(0.2)),
+                                ],
+                                borderRadius: BorderRadius.circular(32),
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  word.word,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
                               ),
                             ),
-                          ),
-                          back: Container(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: 20,
-                            ),
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                    blurRadius: 10,
-                                    spreadRadius: 5,
-                                    color: Colors.grey.withOpacity(0.2)),
-                              ],
-                              borderRadius: BorderRadius.circular(32),
-                              color: Colors.white,
-                            ),
-                            child: Center(
-                              child: Text(
-                                word.meaning,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
+                            back: Container(
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      blurRadius: 10,
+                                      spreadRadius: 5,
+                                      color: Colors.grey.withOpacity(0.2)),
+                                ],
+                                borderRadius: BorderRadius.circular(32),
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  word.meaning,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
                               ),
                             ),
                           ),
@@ -215,7 +252,20 @@ class ListCardScreenDetail extends State<ListCardScreen> {
         return Container();
       }),
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Detail'),
+        leading: IconButton(
+          icon: Icon(
+            Icons.chevron_left_rounded,
+            color: Colors.black,
+            size: 40,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
+        ),
+        elevation: 0.0,
       ),
     );
   }
@@ -233,6 +283,12 @@ class ListCardScreenDetail extends State<ListCardScreen> {
       list.length - 1,
       duration: Duration(seconds: 1),
       curve: Curves.ease,
+    );
+  }
+
+  void jumpTopIndex(int index) {
+    _pageController.jumpToPage(
+      index,
     );
   }
 }

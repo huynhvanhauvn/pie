@@ -160,28 +160,47 @@ class FlashCardFolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screen = MediaQuery.of(context).size;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => showMenu(context),
-                child: Text(
-                  data.title,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        GestureDetector(
+          onTap: () => showMenu(context),
+          child: Container(
+            width: screen.width * 4 / 5,
+            padding: EdgeInsets.only(left: 16, top: 4, bottom: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(32),
+                  bottomRight: Radius.circular(32)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 10,
+                  offset: Offset(5, 5),
                 ),
-              ),
-              IconButton(
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  data.title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
+                ),
+                IconButton(
+                  color: Colors.grey,
                   icon: Icon(
                     Icons.chevron_right_rounded,
-                    size: 40,
+                    size: 32,
                   ),
-                  onPressed: () => onViewMore(data.id)),
-            ],
+                  onPressed: () => onViewMore(data.id),
+                ),
+              ],
+            ),
           ),
         ),
         Container(

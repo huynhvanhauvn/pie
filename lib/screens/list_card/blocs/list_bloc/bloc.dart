@@ -15,9 +15,7 @@ class ListCardBloc extends Bloc<ListCardEvent, ListCardState> {
       yield ListCardLoading();
       try {
         final FlashCardSeries list = await repository.getListCard(id: event.id);
-        print('day la list');
-        // print(list);
-        yield ListCardSuccess(series: list);
+        yield ListCardSuccess(series: list, position: event.position);
       } catch (e) {
         yield ListCardFailure();
       }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/flashcard_series.dart';
 import 'package:pie/models/word.dart';
 import 'package:pie/screens/list_card/blocs/list_bloc/bloc.dart';
+import 'package:pie/screens/list_card/blocs/remove_word_bloc/bloc.dart';
 import 'package:pie/screens/list_card/blocs/repository.dart';
 import 'package:pie/screens/list_card/screen.dart';
 import 'package:http/http.dart' as http;
@@ -64,7 +65,7 @@ void viewWordDetail(Word word, BuildContext context) {
   );
 }
 
-void viewCardFolder({String idFolder, BuildContext context}) {
+void viewCardFolder({String idFolder, BuildContext context, VoidCallback onChangeData}) {
   print(idFolder);
   Navigator.push(
     context,
@@ -78,9 +79,17 @@ void viewCardFolder({String idFolder, BuildContext context}) {
               ),
             ),
           ),
+          BlocProvider(
+            create: (context) => RemoveWordBloc(
+              repository: ListCardRepository(
+                httpClient: http.Client(),
+              ),
+            ),
+          ),
         ],
         child: ListCardScreen(
           idFolder: idFolder,
+          onChangeData: onChangeData,
         ),
       ),
     ),
@@ -156,8 +165,10 @@ showAlertDialog(
   // set up the buttons
   Widget cancelButton = FlatButton(
     child: Text("Hủy"),
-    onPressed: () =>
-        onCancel != null ? onCancel() : Navigator.of(context).pop(),
+    onPressed: () {
+      Navigator.of(context).pop();
+      onCancel();
+    },
   );
   Widget continueButton = FlatButton(
     child: Text("Tiếp"),

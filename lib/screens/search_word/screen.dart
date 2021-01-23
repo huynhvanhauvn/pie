@@ -68,6 +68,7 @@ class MyState extends State<SearchWordScreen> {
         },
       ),
       appBar: AppBar(
+        centerTitle: true,
         title: TextField(
           onChanged: (keyword) {
             print(keyword);
@@ -82,20 +83,19 @@ class MyState extends State<SearchWordScreen> {
             contentPadding: EdgeInsets.only(
               left: 16,
               right: 16,
-              top: 8,
-              bottom: 8,
+              top: 4,
+              bottom: 4,
             ),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(32),
                 borderSide: BorderSide.none),
-            fillColor: AppColor.grey.withOpacity(0.28),
+            fillColor: Colors.black.withOpacity(0.28),
             filled: true,
           ),
         ),
         leading: IconButton(
           icon: Icon(
             Icons.chevron_left_rounded,
-            color: AppColor.primary,
             size: 40,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -111,7 +111,6 @@ class MyState extends State<SearchWordScreen> {
                 disabledColor: Colors.grey,
                 icon: Icon(
                   Icons.check,
-                  color: AppColor.primary,
                   size: 32,
                 ),
                 onPressed: _words.length > 0 ? () {
@@ -125,7 +124,9 @@ class MyState extends State<SearchWordScreen> {
             },
           ),
         ],
-        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
+        ),
         elevation: 0.0,
       ),
     );
