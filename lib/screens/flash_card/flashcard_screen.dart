@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/flashcard_series.dart';
@@ -38,7 +39,6 @@ class FlashCardScreenState extends State<FlashCardScreen> {
   Future scanQRCode() async {
     String result = await scanner.scan();
     if (result != null && result.length > 0) {
-      print('go copy');
       BlocProvider.of<CopyGroupBloc>(context).add(CopySeries(id: result));
     }
   }
@@ -54,57 +54,64 @@ class FlashCardScreenState extends State<FlashCardScreen> {
               if (state is ListGroupSuccess) {
                 print(state.series);
                 final List<FlashCardSeries> series = state.series;
-                return Column(
-                  children: series != null && series.length > 0
-                      ? series
-                          .map(
-                            (e) => e.words != null && e.words.length > 0
-                                ? MultiBlocListener(
-                                    listeners: [
-                                      BlocListener<RenameGroupBloc,
-                                          RenameGroupState>(
-                                        listener: (context, state) {
-                                          if (state is RenameGroupSuccess) {
-                                            BlocProvider.of<ListGroupBloc>(
-                                                    context)
-                                                .add(GetListGroup());
-                                          }
-                                        },
+                return Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Column(
+                    children: series != null && series.length > 0
+                        ? series
+                            .map(
+                              (e) => e.words != null && e.words.length > 0
+                                  ? MultiBlocListener(
+                                      listeners: [
+                                        BlocListener<RenameGroupBloc,
+                                            RenameGroupState>(
+                                          listener: (context, state) {
+                                            if (state is RenameGroupSuccess) {
+                                              BlocProvider.of<ListGroupBloc>(
+                                                      context)
+                                                  .add(GetListGroup());
+                                            }
+                                          },
+                                        ),
+                                        BlocListener<DeleteGroupBloc,
+                                            DeleteGroupState>(
+                                          listener: (context, state) {
+                                            if (state is DeleteGroupSuccess) {
+                                              BlocProvider.of<ListGroupBloc>(
+                                                      context)
+                                                  .add(GetListGroup());
+                                            }
+                                          },
+                                        ),
+                                        BlocListener<CopyGroupBloc,
+                                            CopyGroupState>(
+                                          listener: (context, state) {
+                                            print(state);
+                                            if (state is CopyGroupSuccess) {
+                                              BlocProvider.of<ListGroupBloc>(
+                                                      context)
+                                                  .add(GetListGroup());
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                      child: FlashCardFolder(
+                                        data: e,
+                                        onViewMore: (id) => viewCardFolder(
+                                          context: context,
+                                          idFolder: id,
+                                          onChangeData: () =>
+                                              BlocProvider.of<ListGroupBloc>(
+                                                      context)
+                                                  .add(GetListGroup()),
+                                        ),
                                       ),
-                                      BlocListener<DeleteGroupBloc,
-                                          DeleteGroupState>(
-                                        listener: (context, state) {
-                                          if (state is DeleteGroupSuccess) {
-                                            BlocProvider.of<ListGroupBloc>(
-                                                    context)
-                                                .add(GetListGroup());
-                                          }
-                                        },
-                                      ),
-                                      BlocListener<CopyGroupBloc,
-                                          CopyGroupState>(
-                                        listener: (context, state) {
-                                          print(state);
-                                          if (state is CopyGroupSuccess) {
-                                            BlocProvider.of<ListGroupBloc>(
-                                                context)
-                                                .add(GetListGroup());
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                    child: FlashCardFolder(
-                                      data: e,
-                                      onViewMore: (id) => viewCardFolder(
-                                        context: context,
-                                        idFolder: id,
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
-                          )
-                          .toList()
-                      : [],
+                                    )
+                                  : Container(),
+                            )
+                            .toList()
+                        : [],
+                  ),
                 );
               }
               return Container();
@@ -113,14 +120,13 @@ class FlashCardScreenState extends State<FlashCardScreen> {
         ),
       ),
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Flashcard List',
-          style: TextStyle(color: AppColor.primary),
         ),
         leading: IconButton(
           icon: Icon(
             Icons.chevron_left_rounded,
-            color: AppColor.primary,
             size: 40,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -129,7 +135,6 @@ class FlashCardScreenState extends State<FlashCardScreen> {
           IconButton(
             icon: Icon(
               Icons.search,
-              color: AppColor.primary,
               size: 30,
             ),
             onPressed: () => Navigator.push(
@@ -151,7 +156,9 @@ class FlashCardScreenState extends State<FlashCardScreen> {
             ),
           ),
         ],
-        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
+        ),
         elevation: 0.0,
       ),
       floatingActionButton: FloatingActionButton(
