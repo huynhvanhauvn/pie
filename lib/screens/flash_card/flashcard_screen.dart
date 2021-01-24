@@ -13,10 +13,11 @@ import 'package:pie/screens/flash_card/blocs/rename_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/blocs/rename_bloc/state.dart';
 import 'package:pie/screens/flash_card/blocs/repository.dart';
 import 'package:pie/screens/flash_card/widgets/flashcard_folder.dart';
+import 'package:pie/screens/search_word/blocs/add_group_bloc/bloc.dart';
+import 'package:pie/screens/search_word/blocs/add_word_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/repository.dart';
 import 'package:pie/screens/search_word/screen.dart';
-import 'package:pie/utils/app_color.dart';
 import 'package:pie/utils/app_functions.dart';
 import 'package:http/http.dart' as http;
 import 'package:qrscans/qrscan.dart' as scanner;
@@ -49,7 +50,7 @@ class FlashCardScreenState extends State<FlashCardScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: BlocBuilder<ListGroupBloc, ListGroupState>(
-            builder: (context, state) {
+            builder: (ctx, state) {
               print(state);
               if (state is ListGroupSuccess) {
                 print(state.series);
@@ -97,6 +98,7 @@ class FlashCardScreenState extends State<FlashCardScreen> {
                                       ],
                                       child: FlashCardFolder(
                                         data: e,
+                                        onDone: () => BlocProvider.of<ListGroupBloc>(context).add(GetListGroup()),
                                         onViewMore: (id) => viewCardFolder(
                                           context: context,
                                           idFolder: id,
@@ -140,7 +142,7 @@ class FlashCardScreenState extends State<FlashCardScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MultiBlocProvider(
+                builder: (ctx) => MultiBlocProvider(
                   providers: [
                     BlocProvider(
                       create: (context) => ListBloc(
@@ -149,8 +151,25 @@ class FlashCardScreenState extends State<FlashCardScreen> {
                         ),
                       ),
                     ),
+                    BlocProvider(
+                      create: (context) => AddWordBloc(
+                        repository: ListRepository(
+                          httpClient: http.Client(),
+                        ),
+                      ),
+                    ),
+                    BlocProvider(
+                      create: (context) => AddGroupBloc(
+                        repository: ListRepository(
+                          httpClient: http.Client(),
+                        ),
+                      ),
+                    ),
                   ],
-                  child: SearchWordScreen(),
+                  child: SearchWordScreen(
+                    onDone: () => BlocProvider.of<ListGroupBloc>(context)
+                        .add(GetListGroup()),
+                  ),
                 ),
               ),
             ),

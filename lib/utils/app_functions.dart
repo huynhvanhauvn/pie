@@ -7,6 +7,7 @@ import 'package:pie/screens/list_card/blocs/remove_word_bloc/bloc.dart';
 import 'package:pie/screens/list_card/blocs/repository.dart';
 import 'package:pie/screens/list_card/screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:pie/screens/search_word/blocs/add_group_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/add_word_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/search_word/blocs/repository.dart';
@@ -31,26 +32,6 @@ bool isPhoneLandscape({@required BuildContext context}) {
   return shortestSide < 600 && orientation == Orientation.landscape;
 }
 
-// void viewArtistDetail({Artist artist, BuildContext context}) {
-//   final ArtistRepository repository =
-//       ArtistRepository(httpClient: http.Client());
-//   Navigator.push(
-//     context,
-//     MaterialPageRoute(
-//       builder: (context) => MultiBlocProvider(
-//         providers: [
-//           BlocProvider<ArtistBloc>(
-//             create: (context) => ArtistBloc(repository: repository),
-//           ),
-//         ],
-//         child: ArtistScreen(
-//           artist: artist,
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
 Color fromHex(String hexString) {
   final buffer = StringBuffer();
   if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
@@ -65,7 +46,8 @@ void viewWordDetail(Word word, BuildContext context) {
   );
 }
 
-void viewCardFolder({String idFolder, BuildContext context, VoidCallback onChangeData}) {
+void viewCardFolder(
+    {String idFolder, BuildContext context, VoidCallback onChangeData}) {
   print(idFolder);
   Navigator.push(
     context,
@@ -156,48 +138,40 @@ Size screenSize({BuildContext context}) {
   return MediaQuery.of(context).size;
 }
 
-showAlertDialog(
+void showAlertDialog(
     {@required BuildContext context,
     String title,
     String content,
     VoidCallback onCancel,
     VoidCallback onContinue}) {
-  // set up the buttons
-  Widget cancelButton = FlatButton(
-    child: Text("Hủy"),
-    onPressed: () {
-      Navigator.of(context).pop();
-      onCancel();
-    },
-  );
-  Widget continueButton = FlatButton(
-    child: Text("Tiếp"),
-    onPressed: () {
-      Navigator.of(context).pop();
-      onContinue();
-    },
-  );
-
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text(title),
-    content: Text(content),
-    actions: [
-      cancelButton,
-      continueButton,
-    ],
-  );
-
-  // show the dialog
   showDialog(
     context: context,
-    builder: (BuildContext context) {
-      return alert;
+    builder: (BuildContext ctx) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          FlatButton(
+            child: Text("Hủy"),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              onCancel();
+            },
+          ),
+          FlatButton(
+            child: Text("Tiếp"),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              onContinue();
+            },
+          ),
+        ],
+      );
     },
   );
 }
 
-void goToAdd(BuildContext context, idSeries) {
+void goToAdd({BuildContext context, idSeries, VoidCallback onDone}) {
   Navigator.pushReplacement(
     context,
     MaterialPageRoute(
@@ -217,8 +191,18 @@ void goToAdd(BuildContext context, idSeries) {
               ),
             ),
           ),
+          BlocProvider(
+            create: (context) => AddGroupBloc(
+              repository: ListRepository(
+                httpClient: http.Client(),
+              ),
+            ),
+          ),
         ],
-        child: SearchWordScreen(idSeries: idSeries,),
+        child: SearchWordScreen(
+          idSeries: idSeries,
+          onDone: onDone,
+        ),
       ),
     ),
   );

@@ -29,9 +29,20 @@ class AddWord extends SearchEvent {
   final List<Word> words;
   final String idSeries;
 
-  AddWord(this.words, this.idSeries);
+  AddWord({this.words, this.idSeries});
 
   @override
   // TODO: implement props
   List<Object> get props => [words, idSeries];
+}
+
+class AddGroup extends SearchEvent {
+  final List<Word> words;
+  final String groupName;
+
+  AddGroup({this.words, this.groupName});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [words, groupName];
 }
