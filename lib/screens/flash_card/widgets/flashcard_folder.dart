@@ -8,6 +8,7 @@ import 'package:pie/screens/flash_card/blocs/delete_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/blocs/event.dart';
 import 'package:pie/screens/flash_card/blocs/rename_bloc/bloc.dart';
 import 'package:pie/screens/flash_card/widgets/flash_card.dart';
+import 'package:pie/utils/app_color.dart';
 import 'package:pie/utils/app_functions.dart';
 import 'package:pie/utils/app_type.dart';
 import 'package:qrscans/qrscan.dart' as scanner;
@@ -15,11 +16,12 @@ import 'package:qrscans/qrscan.dart' as scanner;
 class FlashCardFolder extends StatelessWidget {
   final FlashCardSeries data;
   final CallBack onViewMore;
-  final _controller = TextEditingController();
+  final VoidCallback onDone;
 
-  FlashCardFolder({this.data, this.onViewMore});
+  FlashCardFolder({this.data, this.onViewMore, this.onDone});
 
   void showRenameDialog(BuildContext context) {
+    final _controller = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) {
@@ -33,12 +35,17 @@ class FlashCardFolder extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    bottom: 24,
+                  ),
                   child: TextField(
                     controller: _controller,
                   ),
                 ),
                 FlatButton(
+                  color: AppColor.primary,
                   onPressed: () {
                     BlocProvider.of<RenameGroupBloc>(context).add(RenameSeries(
                       id: data.id,
@@ -111,7 +118,11 @@ class FlashCardFolder extends StatelessWidget {
                     endIndent: 20,
                   ),
                   GestureDetector(
-                    onTap: () => goToAdd(context, data.id),
+                    onTap: () => goToAdd(
+                      context: context,
+                      idSeries: data.id,
+                      onDone: onDone,
+                    ),
                     child: Text('Add Words'),
                   ),
                   Divider(
@@ -189,7 +200,10 @@ class FlashCardFolder extends StatelessWidget {
               children: [
                 Text(
                   data.title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 IconButton(
                   color: Colors.grey,

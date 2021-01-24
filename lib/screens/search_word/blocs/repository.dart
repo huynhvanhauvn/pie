@@ -53,6 +53,8 @@ class ListRepository extends Equatable {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     final String token = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+    final String refreshToken =
+        sharedPreferences.getString(LoginScreen.REFRESH_TOKEN) ?? '';
     final response = await httpClient.post(
       '${AppString.baseUrl}Group/add_to_group',
       body: jsonEncode(<String, String>{
@@ -65,26 +67,102 @@ class ListRepository extends Equatable {
     if (response.statusCode == 200) {
       return true;
     } else if (response.statusCode == 401) {
-      final String token = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
-      final response = await httpClient.post(
-        '${AppString.baseUrl}Group/add_to_group',
-        body: jsonEncode(<String, String>{
-          'id': idSeries,
-          'vocabs': jsonEncode(words.map((e) => e.toIdJson()).toList()),
-        }),
-        headers: {HttpHeaders.authorizationHeader: token},
-      );
-      if (response.statusCode == 200) {
-        return true;
-      } else if (response.statusCode == 400) {
-        return false;
+
+      final tokenResponse = await httpClient.get(
+          '${AppString.baseUrl}User/reset',
+          headers: {HttpHeaders.authorizationHeader: refreshToken});
+      print(tokenResponse.statusCode);
+      if (tokenResponse.statusCode == 200) {
+        final user = jsonDecode(tokenResponse.body);
+        await sharedPreferences.setString(LoginScreen.TOKEN, user['new_token']);
+
+        final String newToken =
+            sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+        final response = await httpClient.post(
+          '${AppString.baseUrl}Group/add_to_group',
+          body: jsonEncode(<String, String>{
+            'id': idSeries,
+            'vocabs': jsonEncode(words.map((e) => e.toIdJson()).toList()),
+          }),
+          headers: {HttpHeaders.authorizationHeader: newToken},
+        );
+        if (response.statusCode == 200) {
+          return true;
+        } else if (response.statusCode == 400) {
+          return false;
+        } else {
+          throw Exception('Add word failed ${response.statusCode}');
+        }
       } else {
-        throw Exception('Add word failed');
+        throw Exception('Add word failed ${tokenResponse.statusCode}');
       }
+
     } else if (response.statusCode == 400) {
       return false;
     } else {
       throw Exception('Add word failed');
+    }
+  }
+
+  Future<bool> addGroup({
+    String groupName,
+    List<Word> words,
+  }) async {
+    print(jsonEncode(<String, String>{
+      'group_name': groupName,
+      'vocabs': jsonEncode(words.map((e) => e.toIdJson()).toList()),
+    }));
+
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    final String token = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+    final String refreshToken = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+    final response = await httpClient.post(
+      '${AppString.baseUrl}Group/vocabs',
+      body: jsonEncode(<String, String>{
+        'group_name': groupName,
+        'vocabs': jsonEncode(words.map((e) => e.toIdJson()).toList()),
+      }),
+      headers: {HttpHeaders.authorizationHeader: token},
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 401) {
+
+      final tokenResponse = await httpClient.get(
+          '${AppString.baseUrl}User/reset',
+          headers: {HttpHeaders.authorizationHeader: refreshToken});
+      print(tokenResponse.statusCode);
+      if (tokenResponse.statusCode == 200) {
+        final user = jsonDecode(tokenResponse.body);
+        await sharedPreferences.setString(LoginScreen.TOKEN, user['new_token']);
+
+        final String newToken = sharedPreferences.getString(LoginScreen.TOKEN) ?? '';
+        final response = await httpClient.post(
+          '${AppString.baseUrl}Group/vocabs',
+          body: jsonEncode(<String, String>{
+            'group_name': groupName,
+            'vocabs': jsonEncode(words.map((e) => e.toIdJson()).toList()),
+          }),
+          headers: {HttpHeaders.authorizationHeader: newToken},
+        );
+        if (response.statusCode == 200) {
+          return true;
+        } else if (response.statusCode == 400) {
+          return false;
+        } else {
+          throw Exception('Add group failed ${response.statusCode}');
+        }
+
+      } else {
+        throw Exception('Add group failed ${tokenResponse.statusCode}');
+      }
+
+    } else if (response.statusCode == 400) {
+      return false;
+    } else {
+      throw Exception('Add group failed');
     }
   }
 
