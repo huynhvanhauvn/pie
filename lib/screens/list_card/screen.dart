@@ -266,6 +266,16 @@ class ListCardScreenDetail extends State<ListCardScreen> {
           borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
         ),
         elevation: 0.0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[Colors.pink, Colors.yellow],
+            ),
+            borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
+          ),
+        ),
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:pie/screens/flash_card/widgets/flash_card.dart';
 import 'package:pie/utils/app_color.dart';
 import 'package:pie/utils/app_functions.dart';
 import 'package:pie/utils/app_type.dart';
+import 'package:pie/widgets/outline_box.dart';
 import 'package:qrscans/qrscan.dart' as scanner;
 
 class FlashCardFolder extends StatelessWidget {
@@ -175,25 +176,45 @@ class FlashCardFolder extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onTap: () => showMenu(context),
-          child: Container(
-            width: screen.width * 4 / 5,
-            padding: EdgeInsets.only(left: 16, top: 4, bottom: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(32),
-                  bottomRight: Radius.circular(32)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 10,
-                  offset: Offset(5, 5),
-                ),
+        Container(
+          width: screen.width * 4 / 5,
+          padding: EdgeInsets.only(
+            left: 16,
+            top: 4,
+            bottom: 4,
+            right: 4,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topRight: Radius.circular(32),
+                bottomRight: Radius.circular(32)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 10,
+                offset: Offset(5, 5),
+              ),
+            ],
+          ),
+          child: OutlineBox(
+            strokeWidth: 1.5,
+            radius: 32,
+            gradient: LinearGradient(
+              colors: [
+                Colors.yellow.withOpacity(0),
+                Colors.yellow.withOpacity(0.3),
+                Colors.yellow,
+                Colors.yellow,
+                Colors.yellow,
+                Colors.yellow,
+                Colors.yellow,
               ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
+            onPressed: () => showMenu(context),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
