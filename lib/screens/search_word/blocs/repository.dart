@@ -12,7 +12,7 @@ class ListRepository extends Equatable {
   final http.Client httpClient;
 
   ListRepository({this.httpClient});
-
+  
   Future<List<Word>> searchWord(
       {int startIndex, int limit, String keyword}) async {
     print(startIndex);
@@ -64,6 +64,7 @@ class ListRepository extends Equatable {
       headers: {HttpHeaders.authorizationHeader: token},
     );
     print(response.statusCode);
+    print(response.body.toString());
     if (response.statusCode == 200) {
       return true;
     } else if (response.statusCode == 401) {
