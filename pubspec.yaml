@@ -35,6 +35,7 @@ dependencies:
   intl: ^0.16.1
   flutter_tts: ^2.0.0
   qrscans: ^0.0.7
+  lottie: ^0.7.0+1
 
 dev_dependencies:
   flutter_test:

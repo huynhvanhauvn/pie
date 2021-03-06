@@ -98,7 +98,10 @@ class FlashCardScreenState extends State<FlashCardScreen> {
                                       ],
                                       child: FlashCardFolder(
                                         data: e,
-                                        onDone: () => BlocProvider.of<ListGroupBloc>(context).add(GetListGroup()),
+                                        onDone: () =>
+                                            BlocProvider.of<ListGroupBloc>(
+                                                    context)
+                                                .add(GetListGroup()),
                                         onViewMore: (id) => viewCardFolder(
                                           context: context,
                                           idFolder: id,
@@ -179,10 +182,32 @@ class FlashCardScreenState extends State<FlashCardScreen> {
           borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
         ),
         elevation: 0.0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[Colors.pink, Colors.yellow],
+            ),
+            borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: scanQRCode,
-        child: Icon(Icons.qr_code),
+        child: Container(
+          child: Center(
+            child: Icon(Icons.qr_code),
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[Colors.pink, Colors.yellow],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
       ),
     );
   }

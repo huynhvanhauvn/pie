@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:pie/utils/app_color.dart';
+import 'package:pie/widgets/outline_box.dart';
 
 class MenuItem extends StatelessWidget {
   final double top;
@@ -7,15 +10,24 @@ class MenuItem extends StatelessWidget {
   final double right;
   final double height;
   final String title;
+  final String lottie;
   final VoidCallback onPress;
+  final Gradient gradient;
 
-  MenuItem({this.top, this.left, this.bottom, this.right, this.height, this.title, this.onPress});
+  MenuItem(
+      {this.top,
+      this.left,
+      this.bottom,
+      this.right,
+      this.height,
+      this.title,
+      this.lottie,
+      this.onPress,
+      this.gradient});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onPress(),
-      child: Container(
+    return Container(
         width: double.infinity,
         height: height,
         margin: EdgeInsets.only(
@@ -24,19 +36,31 @@ class MenuItem extends StatelessWidget {
           top: top,
           bottom: bottom,
         ),
-        decoration: BoxDecoration(
-          color: Colors.amber,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+        child: OutlineBox(
+          strokeWidth: 4,
+          radius: 16,
+          gradient: gradient,
+          onPressed: onPress,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColor.primary,
+                ),
+              ),
+              LottieBuilder.network(
+                lottie,
+                width: 50,
+                height: 50,
+                fit: BoxFit.fill,
+              ),
+            ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

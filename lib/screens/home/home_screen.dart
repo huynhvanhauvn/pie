@@ -35,6 +35,12 @@ class HomeScreenState extends State<HomeScreen> {
                     right: 8,
                     height: 100,
                     title: 'Vocabulary',
+                    lottie: 'https://assets1.lottiefiles.com/packages/lf20_DMgKk1.json',
+                    gradient: LinearGradient(
+                      colors: [Colors.pink, Colors.yellow],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     onPress: () {
                       Navigator.push(
                           context,
@@ -69,6 +75,12 @@ class HomeScreenState extends State<HomeScreen> {
                     bottom: 16,
                     height: 200,
                     title: 'Speaking',
+                    lottie: 'https://assets6.lottiefiles.com/packages/lf20_fksm3n4x.json',
+                    gradient: LinearGradient(
+                      colors: [Colors.pink, Colors.yellow],
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
+                    ),
                   ),
                 ],
               ),
@@ -85,6 +97,12 @@ class HomeScreenState extends State<HomeScreen> {
                     bottom: 8,
                     height: 200,
                     title: 'Listening',
+                    lottie: 'https://assets6.lottiefiles.com/private_files/lf30_k2RVBb.json',
+                    gradient: LinearGradient(
+                      colors: [Colors.pink, Colors.yellow],
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                    ),
                   ),
                   MenuItem(
                     left: 8,
@@ -93,6 +111,12 @@ class HomeScreenState extends State<HomeScreen> {
                     bottom: 16,
                     height: 100,
                     title: 'Practice',
+                    lottie: 'https://assets2.lottiefiles.com/packages/lf20_RrqueP.json',
+                    gradient: LinearGradient(
+                      colors: [Colors.pink, Colors.yellow],
+                      begin: Alignment.bottomRight,
+                      end: Alignment.topLeft,
+                    ),
                   ),
                 ],
               ),
