@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pie/models/flashcard_series.dart';
+import 'package:pie/models/level.dart';
 import 'package:pie/models/word.dart';
 import 'package:pie/screens/list_card/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/list_card/blocs/remove_word_bloc/bloc.dart';
@@ -132,6 +133,23 @@ List<FlashCardSeries> fromJsonToListSeries(List<dynamic> listObject) {
     listSeries.add(series);
   });
   return listSeries;
+}
+
+List<Level> fromJsonToListLevel(List<dynamic> listObject) {
+  final List<Level> listLevel = List();
+  // listObject.forEach((element) {
+  //   final List<dynamic> listWord = element['vocab_list'];
+  //   final FlashCardSeries series = FlashCardSeries(
+  //     id: element['id'] as String,
+  //     title: element['group_name'] as String ?? '',
+  //     words: fromJsonToListWord(listWord) ?? List(),
+  //     idUser: element['id_user'] as String ?? '',
+  //     createDate: element['created_day'] as String ?? '',
+  //     length: element['num_word'] as String ?? '',
+  //   );
+  //   listLevel.add(series);
+  // });
+  return listLevel;
 }
 
 Size screenSize({BuildContext context}) {
