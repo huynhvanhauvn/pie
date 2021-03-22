@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:pie/models/audio.dart';
 import 'package:pie/models/flashcard_series.dart';
 import 'package:pie/models/level.dart';
+import 'package:pie/models/unit.dart';
 import 'package:pie/models/word.dart';
 import 'package:pie/screens/list_card/blocs/list_bloc/bloc.dart';
 import 'package:pie/screens/list_card/blocs/remove_word_bloc/bloc.dart';
@@ -137,19 +140,61 @@ List<FlashCardSeries> fromJsonToListSeries(List<dynamic> listObject) {
 
 List<Level> fromJsonToListLevel(List<dynamic> listObject) {
   final List<Level> listLevel = List();
-  // listObject.forEach((element) {
-  //   final List<dynamic> listWord = element['vocab_list'];
-  //   final FlashCardSeries series = FlashCardSeries(
-  //     id: element['id'] as String,
-  //     title: element['group_name'] as String ?? '',
-  //     words: fromJsonToListWord(listWord) ?? List(),
-  //     idUser: element['id_user'] as String ?? '',
-  //     createDate: element['created_day'] as String ?? '',
-  //     length: element['num_word'] as String ?? '',
-  //   );
-  //   listLevel.add(series);
-  // });
+  listObject.forEach((element) {
+    final Level level = Level(
+      id: element['id_level'] as String,
+      name: element['level_name'] as String,
+      allowed: element['allowed'] as bool,
+      // picture: element['picture'] as String ?? '',
+      // createDate: DateFormat('yyyy-MM-dd').parse(element['created_day'] as String) ?? '',
+    );
+    listLevel.add(level);
+  });
   return listLevel;
+}
+
+List<Unit> fromJsonToListUnit(List<dynamic> listObject) {
+  final List<Unit> listUnit = List();
+  listObject.forEach((element) {
+    final Unit unit = Unit(
+      id: element['id_unit'] as String,
+      // picture: element['picture'] as String ?? '',
+      unit: element['unit_name'] as String ?? '',
+    );
+    listUnit.add(unit);
+  });
+  return listUnit;
+}
+
+List<Audio> fromJsonToListAudio(List<dynamic> listObject) {
+  final List<Audio> listAudio = List();
+  listObject.forEach((element) {
+    final Audio audio = Audio(
+      id: element['id'] as String,
+      picture: element['picture'] as String ?? '',
+      idUnit: element['id_unit'] as String ?? '',
+      script: element['script'] as String ?? '',
+      translate: element['translate'] as String ?? '',
+      audio: element['audio'] as String ?? '',
+      title: element['title'] as String ?? '',
+    );
+    listAudio.add(audio);
+  });
+  return listAudio;
+}
+
+Audio fromJsonToAudio(dynamic element) {
+    final Audio audio = Audio(
+      id: element['id'] as String,
+      picture: element['picture'] as String ?? '',
+      idUnit: element['id_unit'] as String ?? '',
+      script: element['script'] as String ?? '',
+      translate: element['translate'] as String ?? '',
+      audio: element['audio'] as String ?? '',
+      title: element['title'] as String ?? '',
+    );
+    print(audio);
+  return audio;
 }
 
 Size screenSize({BuildContext context}) {

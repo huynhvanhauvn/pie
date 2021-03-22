@@ -36,6 +36,7 @@ dependencies:
   flutter_tts: ^2.0.0
   qrscans: ^0.0.7
   lottie: ^0.7.0+1
+  audioplayers: ^0.17.4
 
 dev_dependencies:
   flutter_test:
