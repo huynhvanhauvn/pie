@@ -100,69 +100,73 @@ class FlashCardFolder extends StatelessWidget {
             ),
             child: Container(
               height: 200,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              alignment: Alignment.center,
+              child: Table(
+                border: TableBorder.symmetric(
+                    inside: BorderSide(width: 1, color: Colors.grey,)),
+                defaultColumnWidth: FixedColumnWidth(100.0),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 children: [
-                  Divider(
-                    indent: 20,
-                    endIndent: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      showRenameDialog(context);
-                    },
-                    child: Text('Rename'),
-                  ),
-                  Divider(
-                    indent: 20,
-                    endIndent: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () => goToAdd(
-                      context: context,
-                      idSeries: data.id,
-                      onDone: onDone,
-                    ),
-                    child: Text('Add Words'),
-                  ),
-                  Divider(
-                    indent: 20,
-                    endIndent: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      showQRDialog(context);
-                    },
-                    child: Text('Share'),
-                  ),
-                  Divider(
-                    indent: 20,
-                    endIndent: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      showAlertDialog(
+                  TableRow(children: [
+                    Container(
+                      child: GestureDetector(
+                        onTap: () => goToAdd(
                           context: context,
-                          title: 'Confirm',
-                          content: 'Do you want to delete this group?',
-                          onContinue: () {
-                            BlocProvider.of<DeleteGroupBloc>(context)
-                                .add(DeleteSeries(id: data.id));
-                          });
-                    },
-                    child: Text(
-                      'Delete Group',
-                      style: TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold),
+                          idSeries: data.id,
+                          onDone: onDone,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.add, color: Colors.green,size: 30.0,),
+                        ),
+                      ),
                     ),
-                  ),
-                  Divider(
-                    indent: 20,
-                    endIndent: 20,
-                  ),
+                    Container(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          showRenameDialog(context);
+                        },
+                        child: IconButton(
+                          icon: Icon(Icons.edit),
+                        ),
+                      ),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    Container(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          showQRDialog(context);
+                        },
+                        child: IconButton(
+                          icon: Icon(Icons.share_outlined),
+
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          showAlertDialog(
+                              context: context,
+                              title: 'Confirm',
+                              content: 'Do you want to delete this group?',
+                              onContinue: () {
+                                BlocProvider.of<DeleteGroupBloc>(context)
+                                    .add(DeleteSeries(id: data.id));
+                              });
+                        },
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    )
+                  ])
                 ],
               ),
             ),
